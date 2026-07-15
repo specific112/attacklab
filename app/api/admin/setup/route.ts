@@ -35,10 +35,17 @@ export async function POST(req: NextRequest) {
     const existing = await db.user.findUnique({ where: { email: adminEmail } });
     let adminCreated = false;
     if (!existing) {
+      // Find a unique username
+      let username = "samadspecific";
+      let counter = 1;
+      while (await db.user.findUnique({ where: { username } })) {
+        username = "samadspecific" + counter;
+        counter++;
+      }
       const adminUser = await db.user.create({
         data: {
           email: adminEmail,
-          username: "samadspecific",
+          username,
           displayName: "ATTACKLAB Owner",
           passwordHash: adminHash,
           emailVerified: new Date(),
