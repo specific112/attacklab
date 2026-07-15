@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./cinematic.css";
 import { CyberProvider } from "../components/cyber-provider";
+import { AuthProvider } from "../components/auth-provider";
 
 const siteUrl = "https://attacklab.vercel.app";
 
@@ -84,9 +85,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#0a0a0f" />
       </head>
       <body>
-        <CyberProvider>
-          {children}
-        </CyberProvider>
+        <AuthProvider>
+          <CyberProvider>
+            {children}
+          </CyberProvider>
+        </AuthProvider>
       </body>
     </html>
   );

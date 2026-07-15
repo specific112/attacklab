@@ -13,12 +13,13 @@ interface User {
   isActive: boolean;
   createdAt: string;
   roles: string[];
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<{ error?: string }>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<{ error?: string; isAdmin?: boolean }>;
   register: (data: { displayName: string; username: string; email: string; password: string; confirmPassword: string; acceptTerms: boolean }) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       if (data.success) {
         await refreshUser();
-        return {};
+        return { isAdmin: data.data?.user?.isAdmin };
       }
       return { error: data.error || "Login failed" };
     } catch {

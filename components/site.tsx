@@ -9,6 +9,7 @@ import AICore from "./ai-core";
 import { FaXTwitter, FaTiktok, FaGithub } from "react-icons/fa6";
 import { FaInstagram, FaYoutube, FaTelegram } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
+import { useAuth } from "./auth-provider";
 
 const nav = [
   ["Learn", "/learn"], ["Programs", "/programs"], ["Labs", "/labs"], ["Challenges", "/challenges"], ["Community", "/community"]
@@ -36,6 +37,7 @@ function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 export function Header() {
+  const { user, loading } = useAuth();
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState(false);
   const [query, setQuery] = useState("");
@@ -72,13 +74,29 @@ export function Header() {
         <nav>{nav.map(([n, u]) => <Link key={u} href={u} data-cyber="nav">{n}</Link>)}</nav>
         <div className="head-actions">
           <button className="search-button" onClick={() => setSearch(true)}>Search <kbd>⌘ K</kbd></button>
-          <Link className="button tiny" href="/contact" data-cyber="cta">Contact <span>↗</span></Link>
+          {!loading && (
+            user ? (
+              <Link className="button tiny" href="/dashboard" data-cyber="cta">Dashboard <span>↗</span></Link>
+            ) : (
+              <Link className="button tiny" href="/login" data-cyber="cta">Sign In <span>↗</span></Link>
+            )
+          )}
           <button className="menu" aria-label="Open menu" onClick={() => setMenu(!menu)}>☰</button>
         </div>
       </motion.header>
       {menu && (
         <div className="mobile-nav">
           {nav.map(([n, u]) => <Link key={u} href={u} onClick={() => setMenu(false)}>{n}</Link>)}
+          {!loading && (
+            user ? (
+              <>
+                <Link href="/dashboard" onClick={() => setMenu(false)}>Dashboard</Link>
+                <Link href="/courses" onClick={() => setMenu(false)}>Courses</Link>
+              </>
+            ) : (
+              <Link href="/login" onClick={() => setMenu(false)}>Sign In</Link>
+            )
+          )}
           <Link href="/contact" onClick={() => setMenu(false)}>Contact</Link>
         </div>
       )}
@@ -208,7 +226,7 @@ export function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.9 }}
               >
-                <Link className="cinematic-action" href="/contact">ENTER ATTACKLAB &rarr;</Link>
+                <Link className="cinematic-action" href="/register">ENTER ATTACKLAB &rarr;</Link>
               </motion.div>
             </div>
             <FloatingScene />
@@ -219,7 +237,7 @@ export function Home() {
             <h1>Master the art of<br /><em>ethical offense.</em></h1>
             <p>One beautifully focused platform to learn, practice, report, and grow your security career.</p>
             <div className="hero-actions">
-              <Link className="button" href="/contact" data-cyber="hero-cta">Enter the platform <span>↗</span></Link>
+              <Link className="button" href="/register" data-cyber="hero-cta">Enter the platform <span>↗</span></Link>
               <Link className="text-link" href="/learn" data-cyber="hero-learn">Explore learning paths <span>→</span></Link>
             </div>
             <div className="trust">
@@ -346,7 +364,7 @@ export function Home() {
           <div className="section-label">YOUR NEXT MOVE</div>
           <h2>The work that<br /><em>changes everything.</em></h2>
           <p>Start for free. Stay because you&rsquo;re becoming someone new.</p>
-          <Link className="button" href="/contact" data-cyber="cta-final">Get in touch <span>↗</span></Link>
+          <Link className="button" href="/register" data-cyber="cta-final">Get started <span>↗</span></Link>
         </section></FadeUp>
       </main>
       <Footer />

@@ -67,6 +67,10 @@ export async function POST(req: NextRequest) {
       data: { userId: user.id, email, eventType: "LOGIN", ipAddress: ip, userAgent: req.headers.get("user-agent"), success: true },
     });
 
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const isAdminEmail = adminEmail && user.email === adminEmail;
+    const hasAdminRole = user.roles.some((r) => r.role.name === "ADMIN" || r.role.name === "SUPER_ADMIN");
+
     return success({
       user: {
         id: user.id,
@@ -75,6 +79,7 @@ export async function POST(req: NextRequest) {
         displayName: user.displayName,
         emailVerified: !!user.emailVerified,
         roles: user.roles.map((r) => r.role.name),
+        isAdmin: isAdminEmail || hasAdminRole,
       },
     });
   } catch (e) {

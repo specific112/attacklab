@@ -23,11 +23,13 @@ export async function requireAdmin() {
   const user = await requireAuth();
   if (!user) return null;
 
-  const hasAdmin = user.roles.some(
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const isAdminEmail = adminEmail && user.email === adminEmail;
+  const hasAdminRole = user.roles.some(
     (r) => r.role.name === "ADMIN" || r.role.name === "SUPER_ADMIN"
   );
 
-  if (!hasAdmin) return null;
+  if (!isAdminEmail && !hasAdminRole) return null;
   return user;
 }
 
@@ -35,7 +37,9 @@ export async function requireSuperAdmin() {
   const user = await requireAuth();
   if (!user) return null;
 
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const isAdminEmail = adminEmail && user.email === adminEmail;
   const hasSuperAdmin = user.roles.some((r) => r.role.name === "SUPER_ADMIN");
-  if (!hasSuperAdmin) return null;
+  if (!isAdminEmail && !hasSuperAdmin) return null;
   return user;
 }

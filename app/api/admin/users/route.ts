@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         id: true, email: true, username: true, displayName: true, emailVerified: true,
         isActive: true, isSuspended: true, lastLoginAt: true, createdAt: true,
         roles: { include: { role: true } },
-        _count: { select: { enrollments: true, authenticationEvents: true } },
+        _count: { select: { enrollments: true, authenticationEvents: true, lessonProgress: true, assessmentAttempts: true } },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -84,6 +84,9 @@ export async function PUT(req: NextRequest) {
       }
       break;
     }
+    case "delete":
+      await db.user.update({ where: { id: userId }, data: { deletedAt: new Date(), isActive: false } });
+      break;
   }
 
   await db.auditLog.create({
