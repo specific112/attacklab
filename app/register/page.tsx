@@ -12,6 +12,8 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     displayName: "", username: "", email: "", password: "", confirmPassword: "", acceptTerms: false,
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -32,10 +34,13 @@ export default function RegisterPage() {
     }
   };
 
+  const passwordInputStyle = { paddingRight: 44 };
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
-      <Link href="/" style={{ fontWeight: 800, fontSize: 22, color: "var(--neon-cyan)", textDecoration: "none", marginBottom: 48, textShadow: "0 0 10px rgba(106,255,240,.3)" }}>
-        <span style={{ marginRight: 6 }}>◇</span> ATTACKLAB
+      <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 800, fontSize: 22, color: "var(--neon-cyan)", textDecoration: "none", marginBottom: 48, textShadow: "0 0 10px rgba(106,255,240,.3)" }}>
+        <img src="/favicon.svg" alt="ATTACKLAB" style={{ width: 36, height: 36 }} />
+        ATTACKLAB
       </Link>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="auth-card">
@@ -57,10 +62,52 @@ export default function RegisterPage() {
           <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@example.com" required />
 
           <label>Password</label>
-          <input type="password" value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="Min 8 chars, uppercase, lowercase, number" required />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={form.password}
+              onChange={(e) => update("password", e.target.value)}
+              placeholder="Min 8 chars, uppercase, lowercase, number"
+              required
+              style={passwordInputStyle}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+                background: "none", border: "none", color: "var(--muted)", cursor: "pointer",
+                fontSize: 16, padding: 4, lineHeight: 1,
+              }}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "🙈" : "👁"}
+            </button>
+          </div>
 
           <label>Confirm Password</label>
-          <input type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} placeholder="Re-enter password" required />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showConfirm ? "text" : "password"}
+              value={form.confirmPassword}
+              onChange={(e) => update("confirmPassword", e.target.value)}
+              placeholder="Re-enter password"
+              required
+              style={passwordInputStyle}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirm(!showConfirm)}
+              style={{
+                position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+                background: "none", border: "none", color: "var(--muted)", cursor: "pointer",
+                fontSize: 16, padding: 4, lineHeight: 1,
+              }}
+              aria-label={showConfirm ? "Hide password" : "Show password"}
+            >
+              {showConfirm ? "🙈" : "👁"}
+            </button>
+          </div>
 
           <label className="checkbox-label" style={{ marginBottom: 20 }}>
             <input type="checkbox" checked={form.acceptTerms} onChange={(e) => update("acceptTerms", e.target.checked)} />

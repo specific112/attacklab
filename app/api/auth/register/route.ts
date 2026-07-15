@@ -8,7 +8,7 @@ import { checkRateLimit } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") || "unknown";
-  const rl = checkRateLimit(`register:${ip}`, 5, 15 * 60 * 1000);
+  const rl = checkRateLimit(`register:${ip}`, 15, 15 * 60 * 1000);
   if (!rl.allowed) return rateLimited();
 
   try {

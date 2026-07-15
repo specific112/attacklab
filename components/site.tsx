@@ -70,7 +70,7 @@ export function Header() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <Link className="brand" href="/"><i>◇</i> ATTACKLAB</Link>
+        <Link className="brand" href="/" style={{ display: "flex", alignItems: "center", gap: 8 }}><img src="/favicon.svg" alt="" style={{ width: 28, height: 28 }} /> ATTACKLAB</Link>
         <nav>{nav.map(([n, u]) => <Link key={u} href={u} data-cyber="nav">{n}</Link>)}</nav>
         <div className="head-actions">
           <button className="search-button" onClick={() => setSearch(true)}>Search <kbd>⌘ K</kbd></button>
@@ -157,7 +157,7 @@ function Footer() {
     <footer>
       <div className="footer-main">
         <div>
-          <Link className="brand" href="/"><i>◇</i> ATTACKLAB</Link>
+          <Link className="brand" href="/" style={{ display: "flex", alignItems: "center", gap: 8 }}><img src="/favicon.svg" alt="" style={{ width: 28, height: 28 }} /> ATTACKLAB</Link>
           <p>Ethical hacking, elevated.<br />Master the art of cyber offense.</p>
         </div>
         <div><b>Platform</b><Link href="/learn">Learning paths</Link><Link href="/labs">Labs</Link><Link href="/programs">Programs</Link><Link href="/leaderboard">Leaderboard</Link></div>

@@ -31,7 +31,7 @@ export default function CoursesPage() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <header style={{ height: 76, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 5.5vw", borderBottom: "1px solid rgba(255,255,255,.06)", background: "rgba(9,10,13,.76)", backdropFilter: "blur(18px)", position: "sticky", top: 0, zIndex: 10 }}>
-        <Link href="/" style={{ fontWeight: 800, fontSize: 18, color: "var(--neon-cyan)", textDecoration: "none" }}><span style={{ marginRight: 5 }}>◇</span> ATTACKLAB</Link>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800, fontSize: 18, color: "var(--neon-cyan)", textDecoration: "none" }}><img src="/favicon.svg" alt="" style={{ width: 26, height: 26 }} /> ATTACKLAB</Link>
         <Link href="/dashboard" style={{ color: "var(--muted)", fontSize: 13 }}>← Back to Dashboard</Link>
       </header>
       <main style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 5.5vw" }}>

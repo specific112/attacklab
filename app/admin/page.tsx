@@ -50,7 +50,7 @@ export default function AdminDashboard() {
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <header style={{ height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 5.5vw", borderBottom: "1px solid rgba(255,255,255,.06)", background: "rgba(9,10,13,.8)", position: "sticky", top: 0, zIndex: 10, backdropFilter: "blur(18px)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <Link href="/" style={{ fontWeight: 800, fontSize: 16, color: "var(--neon-cyan)", textDecoration: "none" }}>◇ ATTACKLAB</Link>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 800, fontSize: 16, color: "var(--neon-cyan)", textDecoration: "none" }}><img src="/favicon.svg" alt="" style={{ width: 24, height: 24 }} /> ATTACKLAB</Link>
           <span style={{ color: "var(--neon-purple)", fontSize: 12, textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 700 }}>Admin Dashboard</span>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
