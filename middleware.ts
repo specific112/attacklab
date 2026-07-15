@@ -44,6 +44,9 @@ function isPublicRoute(pathname: string): boolean {
   // API auth routes
   if (pathname.startsWith("/api/auth/")) return true;
 
+  // Admin setup endpoint (one-time use)
+  if (pathname === "/api/admin/setup") return true;
+
   // Root path
   if (pathname === "/") return true;
 
