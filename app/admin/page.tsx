@@ -6,6 +6,60 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "../../components/auth-provider";
 
+interface CourseItem { id: string; title: string; slug: string; difficulty: string; category: string; isPublished: boolean; _count: { modules: number; enrollments: number } }
+interface LabItem { id: string; title: string; slug: string; difficulty: string; category: string; isPublished: boolean }
+
+function AdminCoursesList() {
+  const [courses, setCourses] = useState<CourseItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch("/api/courses").then(r => r.json()).then(d => { if (d.success) setCourses(d.data); }).finally(() => setLoading(false));
+  }, []);
+  if (loading) return <p style={{ color: "var(--muted)", fontSize: 13 }}>Loading courses...</p>;
+  if (courses.length === 0) return <p style={{ color: "var(--muted)", fontSize: 13 }}>No courses yet.</p>;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {courses.map(c => (
+        <Link key={c.id} href={`/courses/${c.slug}`} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 100px 100px 80px", alignItems: "center", gap: 12, padding: "12px 16px", background: "rgba(255,255,255,.02)", border: "1px solid var(--line)", borderRadius: 8, fontSize: 13, textDecoration: "none", transition: ".2s" }}>
+          <div>
+            <div style={{ fontWeight: 600, color: "var(--white)" }}>{c.title}</div>
+            <div style={{ color: "var(--muted)", fontSize: 11 }}>/{c.slug}</div>
+          </div>
+          <div style={{ color: "var(--muted)", fontSize: 12 }}>{c.category}</div>
+          <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 4, background: c.difficulty === "BEGINNER" ? "rgba(161,255,139,.1)" : c.difficulty === "INTERMEDIATE" ? "rgba(106,255,240,.1)" : "rgba(255,107,157,.1)", color: c.difficulty === "BEGINNER" ? "var(--neon-green)" : c.difficulty === "INTERMEDIATE" ? "var(--neon-cyan)" : "var(--neon-magenta)", textTransform: "uppercase" }}>{c.difficulty}</span>
+          <div style={{ color: "var(--muted)", fontSize: 11 }}>{c._count.modules} modules · {c._count.enrollments} enrolled</div>
+          <span style={{ fontSize: 11, color: c.isPublished ? "var(--neon-green)" : "var(--muted)" }}>{c.isPublished ? "Live" : "Draft"}</span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function AdminLabsList() {
+  const [labs, setLabs] = useState<LabItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch("/api/labs").then(r => r.json()).then(d => { if (d.success) setLabs(d.data || []); }).finally(() => setLoading(false));
+  }, []);
+  if (loading) return <p style={{ color: "var(--muted)", fontSize: 13 }}>Loading labs...</p>;
+  if (labs.length === 0) return <p style={{ color: "var(--muted)", fontSize: 13 }}>No labs yet.</p>;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {labs.map(l => (
+        <div key={l.id} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 100px 80px", alignItems: "center", gap: 12, padding: "12px 16px", background: "rgba(255,255,255,.02)", border: "1px solid var(--line)", borderRadius: 8, fontSize: 13 }}>
+          <div>
+            <div style={{ fontWeight: 600, color: "var(--white)" }}>{l.title}</div>
+            <div style={{ color: "var(--muted)", fontSize: 11 }}>/{l.slug}</div>
+          </div>
+          <div style={{ color: "var(--muted)", fontSize: 12 }}>{l.category}</div>
+          <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 4, background: l.difficulty === "BEGINNER" ? "rgba(161,255,139,.1)" : l.difficulty === "INTERMEDIATE" ? "rgba(106,255,240,.1)" : "rgba(255,107,157,.1)", color: l.difficulty === "BEGINNER" ? "var(--neon-green)" : l.difficulty === "INTERMEDIATE" ? "var(--neon-cyan)" : "var(--neon-magenta)", textTransform: "uppercase" }}>{l.difficulty}</span>
+          <span style={{ fontSize: 11, color: l.isPublished ? "var(--neon-green)" : "var(--muted)" }}>{l.isPublished ? "Live" : "Draft"}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 interface Stats {
   users: { total: number; verified: number; unverified: number; active: number; suspended: number; recent: { id: string; email: string; displayName: string; createdAt: string; lastLoginAt: string | null; emailVerified: string | null; isSuspended: boolean }[] };
   platform: { courses: number; enrollments: number; labs: number; assessments: number };
@@ -56,6 +110,7 @@ export default function AdminDashboard() {
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <Link href="/admin/users" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>Users</Link>
           <Link href="/admin/courses" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>Courses</Link>
+          <Link href="/courses" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>View Courses</Link>
           <Link href="/dashboard" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>My Dashboard</Link>
           <Link href="/" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>← Home</Link>
         </div>
@@ -121,7 +176,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Links */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20, marginBottom: 40 }}>
           <Link href="/admin/users" style={{ display: "block", background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 10, padding: 24, textDecoration: "none", transition: ".2s" }}>
             <h3 style={{ color: "var(--white)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>User Management</h3>
             <p style={{ color: "var(--muted)", fontSize: 13 }}>Search, view, suspend, and manage all user accounts</p>
@@ -130,6 +185,22 @@ export default function AdminDashboard() {
             <h3 style={{ color: "var(--white)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Course Management</h3>
             <p style={{ color: "var(--muted)", fontSize: 13 }}>Manage courses, modules, and published content</p>
           </Link>
+          <Link href="/courses" style={{ display: "block", background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 10, padding: 24, textDecoration: "none", transition: ".2s" }}>
+            <h3 style={{ color: "var(--white)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>View All Courses</h3>
+            <p style={{ color: "var(--muted)", fontSize: 13 }}>Browse all {stats.platform.courses} courses as a user would see them</p>
+          </Link>
+        </div>
+
+        {/* All Courses List */}
+        <div style={{ marginBottom: 40 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>All Courses ({stats.platform.courses})</h2>
+          <AdminCoursesList />
+        </div>
+
+        {/* All Labs List */}
+        <div style={{ marginBottom: 40 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>All Labs ({stats.platform.labs})</h2>
+          <AdminLabsList />
         </div>
       </main>
     </div>
