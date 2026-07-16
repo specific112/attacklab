@@ -2,38 +2,73 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { createSession, createSessionJWT, setSessionCookie } from "@/lib/auth";
 
+function getAppUrl(req: NextRequest): string {
+  const configured = process.env.NEXT_PUBLIC_APP_URL;
+  if (configured) return configured;
+  const proto = req.headers.get("x-forwarded-proto") || "http";
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000";
+  return `${proto}://${host}`;
+}
+
 export async function GET(req: NextRequest) {
+  const appUrl = getAppUrl(req);
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://attacklab.vercel.app";
+  const errorDescription = searchParams.get("error_description");
 
-  if (error || !code) {
-    return NextResponse.redirect(new URL("/login?error=google_auth_failed", appUrl));
+  if (error) {
+    console.error("Google OAuth error:", error, errorDescription);
+    return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(errorDescription || error)}`, appUrl));
+  }
+
+  if (!code) {
+    return NextResponse.redirect(new URL("/login?error=no_code_from_google", appUrl));
   }
 
   try {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      return NextResponse.redirect(new URL("/login?error=google_not_configured", appUrl));
+    }
+
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         code,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        client_id: clientId,
+        client_secret: clientSecret,
         redirect_uri: `${appUrl}/api/auth/google/callback`,
         grant_type: "authorization_code",
       }),
     });
+
+    if (!tokenRes.ok) {
+      const errorBody = await tokenRes.text();
+      console.error("Google token exchange failed:", tokenRes.status, errorBody);
+      return NextResponse.redirect(new URL("/login?error=google_token_failed", appUrl));
+    }
+
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
+      console.error("No access_token in Google response:", tokenData);
       return NextResponse.redirect(new URL("/login?error=google_token_failed", appUrl));
     }
 
     const userRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
       headers: { Authorization: `Bearer ${tokenData.access_token}` },
     });
+
+    if (!userRes.ok) {
+      console.error("Google userinfo request failed:", userRes.status);
+      return NextResponse.redirect(new URL("/login?error=google_userinfo_failed", appUrl));
+    }
+
     const googleUser = await userRes.json();
     if (!googleUser.email) {
+      console.error("No email in Google user response:", googleUser);
       return NextResponse.redirect(new URL("/login?error=no_email", appUrl));
     }
 

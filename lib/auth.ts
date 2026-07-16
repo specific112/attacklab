@@ -152,8 +152,9 @@ export function checkRateLimit(key: string, maxAttempts: number, windowMs: numbe
   return { allowed: true, remaining: maxAttempts - entry.count };
 }
 
-export function isAdmin(roles: { role: { name: string }[] }, email?: string): boolean {
+export function isAdmin(roles: { role: { name: string } }[] | { role: { name: string }[] }, email?: string): boolean {
   const adminEmail = process.env.ADMIN_EMAIL;
   if (adminEmail && email === adminEmail) return true;
-  return roles.role?.some((r) => r.name === "ADMIN" || r.name === "SUPER_ADMIN") ?? false;
+  const roleList = Array.isArray(roles) ? roles : roles.role;
+  return roleList?.some((r) => r.role?.name === "ADMIN" || r.role?.name === "SUPER_ADMIN") ?? false;
 }

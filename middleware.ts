@@ -21,6 +21,8 @@ const PUBLIC_ROUTES = new Set([
   "/api/auth/forgot-password",
   "/api/auth/reset-password",
   "/api/auth/resend-verification",
+  "/api/auth/google",
+  "/api/auth/google/callback",
   "/api/auth/github",
   "/api/auth/github/callback",
   "/api/admin/stats",
