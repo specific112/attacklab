@@ -185,6 +185,10 @@ export default function AdminDashboard() {
             <h3 style={{ color: "var(--white)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Course Management</h3>
             <p style={{ color: "var(--muted)", fontSize: 13 }}>Manage courses, modules, and published content</p>
           </Link>
+          <Link href="/admin/videos" style={{ display: "block", background: "rgba(180,78,255,.05)", border: "1px solid rgba(180,78,255,.2)", borderRadius: 10, padding: 24, textDecoration: "none", transition: ".2s" }}>
+            <h3 style={{ color: "var(--neon-purple)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Video Management</h3>
+            <p style={{ color: "var(--muted)", fontSize: 13 }}>Upload, manage, and assign videos to courses</p>
+          </Link>
           <Link href="/courses" style={{ display: "block", background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 10, padding: 24, textDecoration: "none", transition: ".2s" }}>
             <h3 style={{ color: "var(--white)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>View All Courses</h3>
             <p style={{ color: "var(--muted)", fontSize: 13 }}>Browse all {stats.platform.courses} courses as a user would see them</p>
