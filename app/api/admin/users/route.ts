@@ -33,8 +33,20 @@ export async function GET(req: NextRequest) {
       take: limit,
       select: {
         id: true, email: true, username: true, displayName: true, emailVerified: true,
+        avatarUrl: true, bio: true,
         isActive: true, isSuspended: true, lastLoginAt: true, createdAt: true,
         roles: { include: { role: true } },
+        sessions: {
+          where: { isActive: true },
+          orderBy: { lastActiveAt: "desc" },
+          take: 1,
+          select: { ipAddress: true, userAgent: true, lastActiveAt: true },
+        },
+        authenticationEvents: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: { ipAddress: true, userAgent: true, eventType: true, createdAt: true, details: true },
+        },
         _count: { select: { enrollments: true, authenticationEvents: true, lessonProgress: true, assessmentAttempts: true } },
       },
       orderBy: { createdAt: "desc" },

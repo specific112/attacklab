@@ -6,12 +6,62 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "../../../components/auth-provider";
 
+interface DeviceInfo {
+  browser: string;
+  os: string;
+  device: string;
+}
+
 interface User {
   id: string; email: string; username: string; displayName: string;
   emailVerified: string | null; isActive: boolean; isSuspended: boolean;
   lastLoginAt: string | null; createdAt: string; avatarUrl?: string; bio?: string;
   roles: { role: { name: string } }[];
+  sessions: { ipAddress: string | null; userAgent: string | null; lastActiveAt: string }[];
+  authenticationEvents: { ipAddress: string | null; userAgent: string | null; eventType: string; createdAt: string; details: string | null }[];
   _count: { enrollments: number; authenticationEvents: number; lessonProgress: number; assessmentAttempts: number };
+}
+
+function parseUA(ua: string | null | undefined): DeviceInfo {
+  if (!ua) return { browser: "Unknown", os: "Unknown", device: "Unknown" };
+  let browser = "Unknown";
+  if (ua.includes("Edg/")) browser = "Edge";
+  else if (ua.includes("OPR/") || ua.includes("Opera")) browser = "Opera";
+  else if (ua.includes("Chrome") && !ua.includes("Edg/")) browser = "Chrome";
+  else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+  else if (ua.includes("Firefox")) browser = "Firefox";
+  let os = "Unknown";
+  if (ua.includes("Windows NT 10")) os = "Windows 10/11";
+  else if (ua.includes("Windows NT 6.3")) os = "Windows 8.1";
+  else if (ua.includes("Windows NT 6.2")) os = "Windows 8";
+  else if (ua.includes("Windows NT 6.1")) os = "Windows 7";
+  else if (ua.includes("Windows")) os = "Windows";
+  else if (ua.includes("Mac OS X")) { const v = ua.match(/Mac OS X (\d+[._]\d+)/); os = v ? `macOS ${v[1].replace(/_/g, ".")}` : "macOS"; }
+  else if (ua.includes("Android")) { const v = ua.match(/Android (\d+[\.\d]*)/); os = v ? `Android ${v[1]}` : "Android"; }
+  else if (ua.includes("iPhone") || ua.includes("iPad")) { const v = ua.match(/OS (\d+_\d+)/); os = v ? `iOS ${v[1].replace("_", ".")}` : "iOS"; }
+  else if (ua.includes("Linux")) os = "Linux";
+  else if (ua.includes("CrOS")) os = "Chrome OS";
+  let device = "Desktop";
+  if ((ua.includes("Mobile") || ua.includes("Android")) && !ua.includes("Tablet")) device = "Mobile";
+  else if (ua.includes("iPad") || ua.includes("Tablet")) device = "Tablet";
+  return { browser, os, device };
+}
+
+const deviceIcon: Record<string, string> = { Desktop: "💻", Mobile: "📱", Tablet: "📱" };
+const browserColor: Record<string, string> = { Chrome: "#4285F4", Firefox: "#FF7139", Safari: "#006CFF", Edge: "#0078D7", Opera: "#FF1B2D" };
+
+function DeviceBadge({ ua }: { ua: string | null | undefined }) {
+  const info = parseUA(ua);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11 }}>
+      <span style={{ color: "var(--white)" }}>{deviceIcon[info.device] || "💻"} {info.browser}</span>
+      <span style={{ color: "var(--muted)", fontSize: 10 }}>{info.os} · {info.device}</span>
+    </div>
+  );
+}
+
+function IpBadge({ ip }: { ip: string | null | undefined }) {
+  return <span style={{ fontSize: 11, color: ip ? "var(--neon-cyan)" : "var(--muted)" }}>{ip || "N/A"}</span>;
 }
 
 export default function AdminUsersPage() {
@@ -88,7 +138,7 @@ export default function AdminUsersPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{
-                  display: "grid", gridTemplateColumns: "2fr 1.5fr 100px 90px 90px 100px 180px",
+                  display: "grid", gridTemplateColumns: "2fr 1.5fr 100px 120px 120px 90px 90px 100px 140px",
                   alignItems: "center", gap: 12, padding: "14px 20px",
                   background: "rgba(255,255,255,.02)", border: "1px solid var(--line)",
                   borderRadius: 8, fontSize: 13, cursor: "pointer", transition: ".2s"
@@ -109,6 +159,8 @@ export default function AdminUsersPage() {
                   </div>
                 </div>
                 <div style={{ color: "var(--muted)", fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}</div>
+                <div><IpBadge ip={u.sessions?.[0]?.ipAddress || u.authenticationEvents?.[0]?.ipAddress} /></div>
+                <div><DeviceBadge ua={u.sessions?.[0]?.userAgent || u.authenticationEvents?.[0]?.userAgent} /></div>
                 <div>
                   {u.roles.map(r => (
                     <span key={r.role.name} style={{ background: r.role.name === "ADMIN" || r.role.name === "SUPER_ADMIN" ? "rgba(180,78,255,.15)" : "rgba(106,255,240,.1)", color: r.role.name === "ADMIN" || r.role.name === "SUPER_ADMIN" ? "var(--neon-purple)" : "var(--neon-cyan)", fontSize: 10, padding: "2px 6px", borderRadius: 3 }}>{r.role.name}</span>
@@ -173,6 +225,58 @@ export default function AdminUsersPage() {
                 </div>
               ))}
             </div>
+
+            {/* Device & Session Info */}
+            {selectedUser.sessions?.[0] && (
+              <div style={{ background: "rgba(255,255,255,.03)", borderRadius: 8, padding: 16, marginBottom: 24 }}>
+                <div style={{ fontSize: 10, color: "var(--neon-purple)", textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 700, marginBottom: 12 }}>Session Info</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>IP Address</div>
+                    <div style={{ fontSize: 13, color: "var(--neon-cyan)", fontWeight: 600 }}>{selectedUser.sessions[0].ipAddress || "N/A"}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>Device</div>
+                    <div style={{ fontSize: 13, color: "var(--white)" }}>{(() => { const d = parseUA(selectedUser.sessions[0].userAgent); return `${d.device}`; })()}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>Browser</div>
+                    <div style={{ fontSize: 13, color: "var(--white)" }}>{(() => { const d = parseUA(selectedUser.sessions[0].userAgent); return `${d.browser}`; })()}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>Operating System</div>
+                    <div style={{ fontSize: 13, color: "var(--white)" }}>{(() => { const d = parseUA(selectedUser.sessions[0].userAgent); return `${d.os}`; })()}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>Last Active</div>
+                    <div style={{ fontSize: 13, color: "var(--white)" }}>{selectedUser.sessions[0].lastActiveAt ? new Date(selectedUser.sessions[0].lastActiveAt).toLocaleString() : "N/A"}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>User Agent</div>
+                    <div style={{ fontSize: 11, color: "var(--muted)", wordBreak: "break-all", lineHeight: 1.4 }}>{selectedUser.sessions[0].userAgent || "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Login History */}
+            {selectedUser.authenticationEvents?.length > 0 && (
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ fontSize: 10, color: "var(--neon-purple)", textTransform: "uppercase", letterSpacing: ".08em", fontWeight: 700, marginBottom: 12 }}>Recent Activity</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {selectedUser.authenticationEvents.slice(0, 5).map((evt, i) => {
+                    const info = parseUA(evt.userAgent);
+                    return (
+                      <div key={i} style={{ display: "grid", gridTemplateColumns: "80px 1fr 120px", gap: 8, alignItems: "center", padding: "8px 12px", background: "rgba(255,255,255,.02)", borderRadius: 6, fontSize: 11 }}>
+                        <span style={{ color: evt.eventType === "LOGIN" ? "var(--neon-green)" : "var(--neon-cyan)", fontWeight: 600 }}>{evt.eventType}</span>
+                        <span style={{ color: "var(--muted)" }}>{info.browser} · {info.os} · {info.device} · {evt.ipAddress || "N/A"}</span>
+                        <span style={{ color: "var(--muted)", textAlign: "right" }}>{new Date(evt.createdAt).toLocaleString()}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12, marginBottom: 24 }}>
               {[
