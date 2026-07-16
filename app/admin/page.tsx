@@ -110,6 +110,7 @@ export default function AdminDashboard() {
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <Link href="/admin/users" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>Users</Link>
           <Link href="/admin/courses" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>Courses</Link>
+          <Link href="/admin/videos" style={{ color: "var(--neon-purple)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Videos</Link>
           <Link href="/courses" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>View Courses</Link>
           <Link href="/dashboard" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>My Dashboard</Link>
           <Link href="/" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>← Home</Link>
