@@ -22,13 +22,13 @@ function AdminCoursesList() {
       {courses.map(c => (
         <Link key={c.id} href={`/courses/${c.slug}`} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 100px 100px 80px", alignItems: "center", gap: 12, padding: "12px 16px", background: "rgba(255,255,255,.02)", border: "1px solid var(--line)", borderRadius: 8, fontSize: 13, textDecoration: "none", transition: ".2s" }}>
           <div>
-            <div style={{ fontWeight: 600, color: "var(--white)" }}>{c.title}</div>
-            <div style={{ color: "var(--muted)", fontSize: 11 }}>/{c.slug}</div>
+            <div style={{ fontWeight: 700, color: "var(--white)" }}>{c.title}</div>
+            <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 500 }}>/{c.slug}</div>
           </div>
-          <div style={{ color: "var(--muted)", fontSize: 12 }}>{c.category}</div>
-          <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 4, background: c.difficulty === "BEGINNER" ? "rgba(161,255,139,.1)" : c.difficulty === "INTERMEDIATE" ? "rgba(106,255,240,.1)" : "rgba(255,107,157,.1)", color: c.difficulty === "BEGINNER" ? "var(--neon-green)" : c.difficulty === "INTERMEDIATE" ? "var(--neon-cyan)" : "var(--neon-magenta)", textTransform: "uppercase" }}>{c.difficulty}</span>
-          <div style={{ color: "var(--muted)", fontSize: 11 }}>{c._count.modules} modules · {c._count.enrollments} enrolled</div>
-          <span style={{ fontSize: 11, color: c.isPublished ? "var(--neon-green)" : "var(--muted)" }}>{c.isPublished ? "Live" : "Draft"}</span>
+          <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 500 }}>{c.category}</div>
+          <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 4, background: c.difficulty === "BEGINNER" ? "rgba(161,255,139,.1)" : c.difficulty === "INTERMEDIATE" ? "rgba(106,255,240,.1)" : "rgba(255,107,157,.1)", color: c.difficulty === "BEGINNER" ? "var(--neon-green)" : c.difficulty === "INTERMEDIATE" ? "var(--neon-cyan)" : "var(--neon-magenta)", textTransform: "uppercase" }}>{c.difficulty}</span>
+          <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 500 }}>{c._count.modules} modules · {c._count.enrollments} enrolled</div>
+          <span style={{ fontSize: 12, fontWeight: 600, color: c.isPublished ? "var(--neon-green)" : "var(--muted)" }}>{c.isPublished ? "Live" : "Draft"}</span>
         </Link>
       ))}
     </div>
@@ -48,12 +48,12 @@ function AdminLabsList() {
       {labs.map(l => (
         <div key={l.id} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 100px 80px", alignItems: "center", gap: 12, padding: "12px 16px", background: "rgba(255,255,255,.02)", border: "1px solid var(--line)", borderRadius: 8, fontSize: 13 }}>
           <div>
-            <div style={{ fontWeight: 600, color: "var(--white)" }}>{l.title}</div>
-            <div style={{ color: "var(--muted)", fontSize: 11 }}>/{l.slug}</div>
+            <div style={{ fontWeight: 700, color: "var(--white)" }}>{l.title}</div>
+            <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 500 }}>/{l.slug}</div>
           </div>
-          <div style={{ color: "var(--muted)", fontSize: 12 }}>{l.category}</div>
-          <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 4, background: l.difficulty === "BEGINNER" ? "rgba(161,255,139,.1)" : l.difficulty === "INTERMEDIATE" ? "rgba(106,255,240,.1)" : "rgba(255,107,157,.1)", color: l.difficulty === "BEGINNER" ? "var(--neon-green)" : l.difficulty === "INTERMEDIATE" ? "var(--neon-cyan)" : "var(--neon-magenta)", textTransform: "uppercase" }}>{l.difficulty}</span>
-          <span style={{ fontSize: 11, color: l.isPublished ? "var(--neon-green)" : "var(--muted)" }}>{l.isPublished ? "Live" : "Draft"}</span>
+          <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 500 }}>{l.category}</div>
+          <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 4, background: l.difficulty === "BEGINNER" ? "rgba(161,255,139,.1)" : l.difficulty === "INTERMEDIATE" ? "rgba(106,255,240,.1)" : "rgba(255,107,157,.1)", color: l.difficulty === "BEGINNER" ? "var(--neon-green)" : l.difficulty === "INTERMEDIATE" ? "var(--neon-cyan)" : "var(--neon-magenta)", textTransform: "uppercase" }}>{l.difficulty}</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: l.isPublished ? "var(--neon-green)" : "var(--muted)" }}>{l.isPublished ? "Live" : "Draft"}</span>
         </div>
       ))}
     </div>
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
             { label: "Page Visits", value: stats.guests?.totalVisits || 0, color: "var(--neon-magenta)" },
           ].map((stat, i) => (
             <motion.div key={stat.label} style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 10, padding: 20 }} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-              <div style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 8 }}>{stat.label}</div>
+              <div style={{ fontSize: 12, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 600, marginBottom: 8 }}>{stat.label}</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: stat.color }}>{stat.value}</div>
             </motion.div>
           ))}
@@ -147,24 +147,24 @@ export default function AdminDashboard() {
 
         {/* Recent Users */}
         <div style={{ marginBottom: 40 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Recent Users</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Recent Users</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {stats.users.recent?.map(u => (
               <div key={u.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 100px 100px 120px", alignItems: "center", gap: 16, padding: "14px 20px", background: "rgba(255,255,255,.02)", border: "1px solid var(--line)", borderRadius: 8, fontSize: 13 }}>
                 <div>
-                  <div style={{ fontWeight: 600, color: "var(--white)" }}>{u.displayName}</div>
-                  <div style={{ color: "var(--muted)", fontSize: 11 }}>{u.email}</div>
+                  <div style={{ fontWeight: 700, color: "var(--white)" }}>{u.displayName}</div>
+                  <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 500 }}>{u.email}</div>
                 </div>
-                <div style={{ color: "var(--muted)", fontSize: 12 }}>
+                <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 500 }}>
                   Joined {new Date(u.createdAt).toLocaleDateString()}
                 </div>
-                <div style={{ color: u.emailVerified ? "var(--neon-green)" : "#ff6b9d", fontSize: 11 }}>
+                <div style={{ color: u.emailVerified ? "var(--neon-green)" : "#ff6b9d", fontSize: 12, fontWeight: 600 }}>
                   {u.emailVerified ? "Verified" : "Unverified"}
                 </div>
-                <div style={{ color: u.isSuspended ? "#ff4d4d" : "var(--neon-green)", fontSize: 11 }}>
+                <div style={{ color: u.isSuspended ? "#ff4d4d" : "var(--neon-green)", fontSize: 12, fontWeight: 600 }}>
                   {u.isSuspended ? "Suspended" : "Active"}
                 </div>
-                <div style={{ color: "var(--muted)", fontSize: 11 }}>
+                <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 500 }}>
                   Last login: {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : "Never"}
                 </div>
               </div>
@@ -193,13 +193,13 @@ export default function AdminDashboard() {
 
         {/* All Courses List */}
         <div style={{ marginBottom: 40 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>All Courses ({stats.platform.courses})</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>All Courses ({stats.platform.courses})</h2>
           <AdminCoursesList />
         </div>
 
         {/* All Labs List */}
         <div style={{ marginBottom: 40 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>All Labs ({stats.platform.labs})</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>All Labs ({stats.platform.labs})</h2>
           <AdminLabsList />
         </div>
       </main>

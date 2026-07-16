@@ -106,7 +106,7 @@ export default function DashboardPage() {
             <motion.div key={stat.label} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
               style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 12, padding: 20 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em" }}>{stat.label}</span>
+                <span style={{ fontSize: 12, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 600 }}>{stat.label}</span>
                 <span style={{ fontSize: 14, opacity: 0.5 }}>{stat.icon}</span>
               </div>
               <div style={{ fontSize: 28, fontWeight: 800, color: stat.color }}>{stat.value}</div>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
               background: "none", border: "none", borderBottom: activeTab === tab ? "2px solid var(--neon-cyan)" : "2px solid transparent",
               padding: "12px 16px", color: activeTab === tab ? "var(--neon-cyan)" : "var(--muted)",
-              fontSize: 13, fontWeight: 600, cursor: "pointer", textTransform: "capitalize", transition: ".2s"
+              fontSize: 13, fontWeight: 700, cursor: "pointer", textTransform: "capitalize", transition: ".2s"
             }}>
               {tab === "certs" ? "Certificates" : tab}
             </button>
@@ -132,7 +132,7 @@ export default function DashboardPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             {/* Progress */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Learning Progress</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>Learning Progress</h3>
               {data.enrollments.length > 0 ? data.enrollments.slice(0, 5).map(e => {
                 const courseLessons = data.lessonProgress.filter(lp => lp.lesson.moduleId && data.enrollments.some(en => en.course.id === e.course.id));
                 const done = courseLessons.filter(lp => lp.status === "COMPLETED").length;
@@ -140,8 +140,8 @@ export default function DashboardPage() {
                 return (
                   <Link key={e.id} href={`/courses/${e.course.slug}/learn`} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,.04)", textDecoration: "none" }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--white)" }}>{e.course.title}</div>
-                      <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{done}/{total} lessons</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--white)" }}>{e.course.title}</div>
+                      <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500, marginTop: 2 }}>{done}/{total} lessons</div>
                     </div>
                     <div style={{ width: 60, height: 4, background: "rgba(255,255,255,.08)", borderRadius: 2 }}>
                       <div style={{ height: "100%", width: `${Math.round((done / total) * 100)}%`, background: "var(--neon-cyan)", borderRadius: 2 }} />
@@ -155,12 +155,12 @@ export default function DashboardPage() {
 
             {/* Recent Activity */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Recent Activity</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>Recent Activity</h3>
               {data.lessonProgress.filter(lp => lp.status === "COMPLETED").slice(-5).reverse().map(lp => (
-                <div key={lp.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,.04)", fontSize: 13, color: "var(--muted)" }}>
+                <div key={lp.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,.04)", fontSize: 13, fontWeight: 500, color: "var(--muted)" }}>
                   <span style={{ color: "var(--neon-green)", fontSize: 10 }}>✓</span>
                   <span style={{ flex: 1 }}>Completed: {lp.lesson.title}</span>
-                  <span style={{ fontSize: 11, color: "#4a4d5a" }}>{lp.completedAt ? new Date(lp.completedAt).toLocaleDateString() : ""}</span>
+                  <span style={{ fontSize: 12, color: "#4a4d5a" }}>{lp.completedAt ? new Date(lp.completedAt).toLocaleDateString() : ""}</span>
                 </div>
               ))}
               {data.lessonProgress.filter(lp => lp.status === "COMPLETED").length === 0 && (
@@ -170,13 +170,13 @@ export default function DashboardPage() {
 
             {/* Notifications */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Notifications</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>Notifications</h3>
               {notifications.length > 0 ? notifications.slice(0, 5).map(n => (
                 <div key={n.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,.04)" }}>
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: n.isRead ? "var(--muted)" : "var(--neon-cyan)", marginTop: 5, flexShrink: 0 }} />
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--white)" }}>{n.title}</div>
-                    {n.body && <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{n.body}</div>}
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--white)" }}>{n.title}</div>
+                    {n.body && <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500, marginTop: 2 }}>{n.body}</div>}
                   </div>
                 </div>
               )) : (
@@ -186,7 +186,7 @@ export default function DashboardPage() {
 
             {/* Recommended */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Recommended Next</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>Recommended Next</h3>
               <Link href="/courses" style={{ display: "block", padding: "16px", background: "rgba(106,255,240,.05)", border: "1px solid rgba(106,255,240,.15)", borderRadius: 10, textDecoration: "none" }}>
                 <div style={{ fontSize: 12, color: "var(--neon-cyan)", marginBottom: 6 }}>NEXT STEP</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "var(--white)", marginBottom: 4 }}>
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                     <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 4, background: "rgba(106,255,240,.1)", color: "var(--neon-cyan)", textTransform: "uppercase" }}>{e.course.difficulty}</span>
                     <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, background: "rgba(255,255,255,.05)", color: "var(--muted)", textTransform: "uppercase" }}>{e.course.category}</span>
                   </div>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--white)", margin: "0 0 12px" }}>{e.course.title}</h3>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--white)", margin: "0 0 12px" }}>{e.course.title}</h3>
                   <div style={{ height: 4, background: "rgba(255,255,255,.08)", borderRadius: 2, marginBottom: 6 }}>
                     <div style={{ height: "100%", width: `${pct}%`, background: pct === 100 ? "var(--neon-green)" : "var(--neon-cyan)", borderRadius: 2, transition: ".3s" }} />
                   </div>
@@ -243,8 +243,8 @@ export default function DashboardPage() {
                       {a.score || 0}%
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--white)" }}>{a.assessment.title}</div>
-                      <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Pass: {a.assessment.passScore}% · {a.completedAt ? new Date(a.completedAt).toLocaleDateString() : ""}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--white)" }}>{a.assessment.title}</div>
+                      <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500, marginTop: 2 }}>Pass: {a.assessment.passScore}% · {a.completedAt ? new Date(a.completedAt).toLocaleDateString() : ""}</div>
                     </div>
                     <span style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 4, background: (a.score || 0) >= a.assessment.passScore ? "rgba(106,255,240,.1)" : "rgba(255,77,77,.1)", color: (a.score || 0) >= a.assessment.passScore ? "var(--neon-green)" : "#ff4d4d" }}>
                       {(a.score || 0) >= a.assessment.passScore ? "PASSED" : "FAILED"}
@@ -263,8 +263,8 @@ export default function DashboardPage() {
             {data.labProgress.map(lp => (
               <div key={lp.id} style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 12, padding: 20 }}>
                 <div style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 8 }}>{lp.lab.category}</div>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--white)", marginBottom: 10 }}>{lp.lab.title}</h3>
-                <div style={{ display: "flex", gap: 12, fontSize: 12, color: "var(--muted)" }}>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--white)", marginBottom: 10 }}>{lp.lab.title}</h3>
+                <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 600, color: "var(--muted)" }}>
                   <span>Flags: {lp.flagsFound}</span>
                   <span style={{ color: lp.status === "COMPLETED" ? "var(--neon-green)" : "var(--neon-orange)" }}>{lp.status}</span>
                 </div>
@@ -284,7 +284,7 @@ export default function DashboardPage() {
             {data.certificates.map(cert => (
               <div key={cert.id} style={{ background: "linear-gradient(135deg, rgba(106,255,240,.05), rgba(180,78,255,.05))", border: "1px solid rgba(106,255,240,.15)", borderRadius: 12, padding: 24, textAlign: "center" }}>
                 <div style={{ fontSize: 32, marginBottom: 12 }}>★</div>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--white)", marginBottom: 6 }}>{cert.course.title}</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--white)", marginBottom: 6 }}>{cert.course.title}</h3>
                 <p style={{ fontSize: 11, color: "var(--neon-cyan)", marginBottom: 4 }}>CERT #{cert.certNumber}</p>
                 <p style={{ fontSize: 11, color: "var(--muted)" }}>Issued {new Date(cert.issuedAt).toLocaleDateString()}</p>
               </div>
