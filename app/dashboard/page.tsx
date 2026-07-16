@@ -16,6 +16,16 @@ interface DashboardData {
   stats: { totalEnrollments: number; completedLessons: number; totalLessons: number; completionRate: number; certificatesEarned: number };
 }
 
+interface VideoProgressItem {
+  id: string;
+  lessonId: string;
+  currentTime: number;
+  duration: number;
+  watchedPercent: number;
+  lastWatchedAt: string;
+  lesson: { id: string; title: string; module: { title: string; course: { title: string; slug: string } } };
+}
+
 interface Notification { id: string; title: string; body?: string; type: string; isRead: boolean; createdAt: string; link?: string }
 
 export default function DashboardPage() {
@@ -23,18 +33,21 @@ export default function DashboardPage() {
   const { user, loading: authLoading, logout } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [videoProgress, setVideoProgress] = useState<VideoProgressItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "courses" | "quizzes" | "labs" | "certs">("overview");
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const [progressRes, notifRes] = await Promise.all([
+      const [progressRes, notifRes, videoRes] = await Promise.all([
         fetch("/api/users/progress"),
         fetch("/api/users/notifications").then(r => r.json()).catch(() => ({ success: false, data: [] })),
+        fetch("/api/users/video-progress").then(r => r.json()).catch(() => ({ success: false, data: [] })),
       ]);
       const progressData = await progressRes.json();
       if (progressData.success) setData(progressData.data);
       if (notifRes.success) setNotifications(notifRes.data || []);
+      if (videoRes.success) setVideoProgress(videoRes.data || []);
     } catch {}
     setLoading(false);
   }, []);
@@ -69,7 +82,7 @@ export default function DashboardPage() {
           <span style={{ color: "var(--muted)", fontSize: 12, textTransform: "uppercase", letterSpacing: ".08em" }}>Dashboard</span>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <Link href="/courses" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>Courses</Link>
+          <Link href="/courses" style={{ color: "var(--muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Browse Courses</Link>
           <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, var(--neon-purple), var(--neon-magenta))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "white" }}>
             {user.displayName?.charAt(0)?.toUpperCase() || "U"}
           </div>
@@ -90,6 +103,40 @@ export default function DashboardPage() {
               : `You've completed ${data.stats.completedLessons} lessons across ${data.stats.totalEnrollments} courses.`}
           </p>
         </motion.div>
+
+        {/* Continue Watching */}
+        {videoProgress.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Continue Watching</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+              {videoProgress.slice(0, 4).map(vp => (
+                <Link key={vp.id} href={`/courses/${vp.lesson.module.course.slug}/learn`}
+                  style={{ display: "block", background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 12, padding: 20, textDecoration: "none", transition: ".2s" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: "var(--neon-purple)", fontWeight: 600, marginBottom: 4 }}>
+                        {vp.lesson.module.course.title}
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--white)" }}>
+                        {vp.lesson.title}
+                      </div>
+                    </div>
+                    <div style={{ background: "rgba(106,255,240,.1)", color: "var(--neon-cyan)", fontSize: 11, fontWeight: 700, padding: "4px 8px", borderRadius: 4 }}>
+                      ▶ Resume
+                    </div>
+                  </div>
+                  <div style={{ height: 4, background: "rgba(255,255,255,.08)", borderRadius: 2, marginBottom: 8 }}>
+                    <div style={{ height: "100%", width: `${vp.watchedPercent}%`, background: "var(--neon-cyan)", borderRadius: 2, transition: ".3s" }} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--muted)", fontWeight: 500 }}>
+                    <span>{Math.round(vp.watchedPercent)}% watched</span>
+                    <span>{new Date(vp.lastWatchedAt).toLocaleDateString()}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Stats Grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16, marginBottom: 40 }}>
