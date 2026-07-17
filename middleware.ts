@@ -4,6 +4,59 @@ import { jwtVerify } from "jose";
 const SESSION_COOKIE = "attacklab_session";
 const SECRET = new TextEncoder().encode(process.env.AUTH_SECRET || "fallback-secret-change-me");
 
+// ─── Rate Limiter ───────────────────────────────────────────────────────────
+// In-memory store: maps IP → { count, windowStart }
+// On Vercel serverless each instance has its own map; use Upstash Redis for
+// distributed deployments if needed.
+const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || "10", 10); // max requests per window
+const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || "60000", 10); // 1 minute
+
+const rateLimitStore = new Map<string, { count: number; windowStart: number }>();
+
+// Evict stale entries every 5 minutes to prevent memory leaks
+let lastCleanup = Date.now();
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+
+function getClientIp(req: NextRequest): string {
+  // Trust X-Forwarded-For from Vercel/reverse proxy, fallback to direct IP
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) return realIp;
+  return req.ip || "unknown";
+}
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
+  const now = Date.now();
+
+  // Periodic cleanup
+  if (now - lastCleanup > CLEANUP_INTERVAL_MS) {
+    for (const [key, entry] of rateLimitStore) {
+      if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+        rateLimitStore.delete(key);
+      }
+    }
+    lastCleanup = now;
+  }
+
+  const entry = rateLimitStore.get(ip);
+
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    // New window
+    rateLimitStore.set(ip, { count: 1, windowStart: now });
+    return { allowed: true };
+  }
+
+  entry.count++;
+
+  if (entry.count > RATE_LIMIT_MAX) {
+    const retryAfter = Math.ceil((entry.windowStart + RATE_LIMIT_WINDOW_MS - now) / 1000);
+    return { allowed: false, retryAfter };
+  }
+
+  return { allowed: true };
+}
+
 // Public routes that don't require authentication
 const PUBLIC_ROUTES = new Set([
   "/",
@@ -62,7 +115,32 @@ function isAdminRoute(pathname: string): boolean {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow static assets and public routes
+  // ─── Rate Limiting (applied to all requests) ──────────────────────────────
+  const ip = getClientIp(req);
+  const { allowed, retryAfter } = checkRateLimit(ip);
+
+  if (!allowed) {
+    return new NextResponse(
+      JSON.stringify({
+        error: "Too many requests. Please try again later.",
+        retryAfter,
+      }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(retryAfter),
+          "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+          "X-RateLimit-Remaining": "0",
+          "X-RateLimit-Reset": String(
+            Math.ceil(Date.now() / 1000 + (retryAfter || 60))
+          ),
+        },
+      }
+    );
+  }
+
+  // Allow static assets and public routes (after rate limit check)
   if (isPublicRoute(pathname)) {
     return NextResponse.next();
   }
