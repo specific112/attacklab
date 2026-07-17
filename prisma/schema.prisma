@@ -135,6 +135,43 @@ model AuthenticationEvent {
   @@index([createdAt])
 }
 
+// ─── Security: IP Blocking & Attack Logs ───
+
+model BlockedIp {
+  id          String   @id @default(cuid())
+  ip          String   @unique
+  reason      String
+  source      String   @default("auto") // auto | manual
+  blockedBy   String?  // admin userId if manual
+  violationCount Int   @default(0)
+  blockedAt   DateTime @default(now())
+  expiresAt   DateTime? // null = permanent block
+  unblockedAt DateTime?
+  unblockedBy String?
+  notes       String?
+
+  @@index([ip])
+  @@index([blockedAt])
+  @@index([expiresAt])
+}
+
+model AttackLog {
+  id        String   @id @default(cuid())
+  ip        String
+  type      String   // rate_limit | blocked_ua | suspicious_path | injection | auto_blocked | manual_blocked
+  path      String
+  method    String
+  userAgent String?
+  details   String?
+  blocked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([ip])
+  @@index([type])
+  @@index([createdAt])
+  @@index([blocked])
+}
+
 // ─── Audit & Activity ───
 
 model AuditLog {

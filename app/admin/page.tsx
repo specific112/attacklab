@@ -111,6 +111,7 @@ export default function AdminDashboard() {
           <Link href="/admin/users" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>Users</Link>
           <Link href="/admin/courses" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>Courses</Link>
           <Link href="/admin/videos" style={{ color: "var(--neon-purple)", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Videos</Link>
+          <Link href="/admin/security" style={{ color: "#ef4444", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Security</Link>
           <Link href="/courses" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>View Courses</Link>
           <Link href="/dashboard" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>My Dashboard</Link>
           <Link href="/" style={{ color: "var(--muted)", fontSize: 13, textDecoration: "none" }}>← Home</Link>
@@ -189,6 +190,10 @@ export default function AdminDashboard() {
           <Link href="/admin/videos" style={{ display: "block", background: "rgba(180,78,255,.05)", border: "1px solid rgba(180,78,255,.2)", borderRadius: 10, padding: 24, textDecoration: "none", transition: ".2s" }}>
             <h3 style={{ color: "var(--neon-purple)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Video Management</h3>
             <p style={{ color: "var(--muted)", fontSize: 13 }}>Upload, manage, and assign videos to courses</p>
+          </Link>
+          <Link href="/admin/security" style={{ display: "block", background: "rgba(239,68,68,.05)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 10, padding: 24, textDecoration: "none", transition: ".2s" }}>
+            <h3 style={{ color: "#ef4444", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Security &amp; DDoS Protection</h3>
+            <p style={{ color: "var(--muted)", fontSize: 13 }}>Attack logs, IP blocking, rate limiting, and threat monitoring</p>
           </Link>
           <Link href="/courses" style={{ display: "block", background: "rgba(255,255,255,.03)", border: "1px solid var(--line)", borderRadius: 10, padding: 24, textDecoration: "none", transition: ".2s" }}>
             <h3 style={{ color: "var(--white)", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>View All Courses</h3>

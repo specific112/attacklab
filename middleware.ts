@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
+import { jwtVerify, decodeJwt } from "jose";
+
 const SESSION_COOKIE = "attacklab_session";
 const SECRET = new TextEncoder().encode(process.env.AUTH_SECRET || "fallback-secret-change-me");
 
@@ -10,6 +12,8 @@ const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || "60000
 const BLOCK_THRESHOLD = parseInt(process.env.RATE_LIMIT_BLOCK_THRESHOLD || "3", 10); // violations before auto-block
 const BLOCK_DURATION_MS = parseInt(process.env.RATE_LIMIT_BLOCK_DURATION || "3600000", 10); // 1 hour default block
 const ALERT_WEBHOOK_URL = process.env.ATTACK_ALERT_WEBHOOK_URL || ""; // optional webhook for alerts
+const ADMIN_USER_IDS = (process.env.ADMIN_USER_IDS || "").split(",").filter(Boolean); // comma-separated user IDs to exempt
+const ADMIN_IPS = (process.env.ADMIN_IPS || "").split(",").filter(Boolean); // comma-separated IPs to exempt
 
 // ─── Stores ─────────────────────────────────────────────────────────────────
 const rateLimitStore = new Map<string, { count: number; windowStart: number }>();
@@ -130,6 +134,25 @@ function getClientIp(req: NextRequest): string {
   return req.ip || "unknown";
 }
 
+function isAdmin(req: NextRequest): boolean {
+  const ip = getClientIp(req);
+
+  // Check exempt IPs first (fastest, no crypto needed)
+  if (ADMIN_IPS.includes(ip)) return true;
+
+  // Check JWT user ID (decode without verification — just for exemption check)
+  const token = req.cookies.get(SESSION_COOKIE)?.value;
+  if (!token) return false;
+
+  try {
+    const payload = decodeJwt(token);
+    const userId = payload.userId as string;
+    if (userId && ADMIN_USER_IDS.includes(userId)) return true;
+  } catch {}
+
+  return false;
+}
+
 // ─── Logging ───────────────────────────────────────────────────────────────
 interface AttackLog {
   timestamp: string;
@@ -139,11 +162,35 @@ interface AttackLog {
   userAgent: string;
   method: string;
   details?: string;
+  blocked?: boolean;
 }
+
+const INTERNAL_SECRET = process.env.INTERNAL_API_SECRET || process.env.AUTH_SECRET || "";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://attacklab.vercel.app";
 
 function logAttack(entry: AttackLog): void {
   // Structured JSON log — parses nicely in any log aggregator
   console.log(JSON.stringify({ level: "SECURITY", ...entry }));
+
+  // Persist to database (fire-and-forget)
+  try {
+    fetch(`${SITE_URL}/api/admin/security/log`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${INTERNAL_SECRET}`,
+      },
+      body: JSON.stringify({
+        ip: entry.ip,
+        type: entry.type,
+        path: entry.path,
+        method: entry.method,
+        userAgent: entry.userAgent,
+        details: entry.details,
+        blocked: entry.blocked || false,
+      }),
+    }).catch(() => {});
+  } catch {}
 
   // Fire-and-forget webhook alert (non-blocking)
   if (ALERT_WEBHOOK_URL) {
@@ -156,9 +203,7 @@ function logAttack(entry: AttackLog): void {
           ...entry,
         }),
       }).catch(() => {});
-    } catch {
-      // don't let alert failure break the request
-    }
+    } catch {}
   }
 }
 
@@ -213,6 +258,7 @@ function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
         userAgent: "",
         method: "MULTIPLE",
         details: `Auto-blocked for ${BLOCK_DURATION_MS / 1000}s after ${tracker.count} rate limit violations`,
+        blocked: true,
       });
     } else {
       logAttack({
@@ -320,6 +366,34 @@ export async function middleware(req: NextRequest) {
   const ip = getClientIp(req);
   const userAgent = req.headers.get("user-agent") || "unknown";
   const now = Date.now();
+
+  // ─── Admin exemption — skip ALL protection for admin users ────────────────
+  if (isAdmin(req)) {
+    // Still need to do auth check for protected routes, but skip WAF entirely
+    if (isPublicRoute(pathname)) {
+      return NextResponse.next();
+    }
+    // Fall through to auth check below
+    const token = req.cookies.get(SESSION_COOKIE)?.value;
+    if (!token) {
+      if (isAdminRoute(pathname)) return NextResponse.redirect(new URL("/", req.url));
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    try {
+      const { payload } = await jwtVerify(token, SECRET);
+      const response = NextResponse.next();
+      response.headers.set("x-user-id", payload.userId as string);
+      response.headers.set("x-session-id", payload.sessionId as string);
+      return response;
+    } catch {
+      if (isAdminRoute(pathname)) return NextResponse.redirect(new URL("/", req.url));
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
 
   // 1. Check if IP is auto-blocked
   const block = blockList.get(ip);
