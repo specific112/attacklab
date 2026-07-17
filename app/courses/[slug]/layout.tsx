@@ -3,34 +3,51 @@ import { db } from "../../../lib/db";
 
 const siteUrl = "https://attacklab.vercel.app";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const { slug } = params;
+  let title = "Course";
+  let description = "Learn cybersecurity with ATTACKLAB.";
+  let courseExists = false;
+
   try {
     const course = await db.course.findUnique({
-      where: { slug: params.slug },
-      select: { title: true, description: true, shortDescription: true, category: true, difficulty: true },
+      where: { slug, isPublished: true, deletedAt: null },
+      select: { title: true, description: true, shortDescription: true, difficulty: true, category: true },
     });
-
-    if (!course) {
-      return { title: "Course Not Found", description: "This course could not be found on ATTACKLAB." };
+    if (course) {
+      title = course.title;
+      description = course.shortDescription || course.description?.slice(0, 160) || description;
+      courseExists = true;
     }
+  } catch {}
 
-    const title = `${course.title} — ${course.difficulty} Cybersecurity Course`;
-    const desc = course.shortDescription || course.description;
-
-    return {
-      title,
-      description: desc,
-      alternates: { canonical: `/courses/${params.slug}` },
-      openGraph: {
-        title: `${course.title} | ATTACKLAB`,
-        description: desc,
-        url: `${siteUrl}/courses/${params.slug}`,
-        type: "article",
-      },
-    };
-  } catch {
-    return { title: "ATTACKLAB Course", description: "Cybersecurity course on ATTACKLAB." };
+  if (!courseExists) {
+    return { title: "Course Not Found", robots: { index: false } };
   }
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/courses/${slug}`,
+    },
+    openGraph: {
+      title: `${title} | ATTACKLAB`,
+      description,
+      url: `${siteUrl}/courses/${slug}`,
+      siteName: "ATTACKLAB",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | ATTACKLAB`,
+      description,
+    },
+  };
 }
 
 export default function CourseSlugLayout({ children }: { children: React.ReactNode }) {

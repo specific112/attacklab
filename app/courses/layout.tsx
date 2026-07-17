@@ -3,17 +3,33 @@ import type { Metadata } from "next";
 const siteUrl = "https://attacklab.vercel.app";
 
 export const metadata: Metadata = {
-  title: "Cybersecurity Courses — 30 Learning Paths from Beginner to Advanced",
+  title: "Cybersecurity Courses — 30 Levels from Beginner to Professional",
   description:
-    "Browse 30 structured cybersecurity courses: Linux, Networking, OWASP Top 10, Burp Suite, Nmap, Metasploit, Wireshark, Active Directory, Bug Bounty Hunting, and more. Free to start.",
-  openGraph: {
-    title: "Cybersecurity Courses | ATTACKLAB",
-    description: "30 structured courses from beginner to professional. Learn ethical hacking, penetration testing, and bug bounty hunting.",
-    url: `${siteUrl}/courses`,
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "ATTACKLAB Cybersecurity Courses" }],
-  },
+    "Browse 30 structured ethical hacking courses on ATTACKLAB — from Cybersecurity Fundamentals to Professional Penetration Testing. Hands-on labs, CTF challenges, and real-world attack simulations.",
+  keywords: [
+    "ethical hacking courses",
+    "cybersecurity courses online",
+    "penetration testing training",
+    "bug bounty courses",
+    "hacking courses free",
+    "security certification",
+  ],
   alternates: {
     canonical: "/courses",
+  },
+  openGraph: {
+    title: "Cybersecurity Courses | ATTACKLAB",
+    description:
+      "30 structured ethical hacking courses from beginner to professional. Hands-on labs, CTF challenges, and real-world attack simulations.",
+    url: `${siteUrl}/courses`,
+    siteName: "ATTACKLAB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cybersecurity Courses | ATTACKLAB",
+    description:
+      "30 structured ethical hacking courses from beginner to professional.",
   },
 };
 

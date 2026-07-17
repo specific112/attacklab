@@ -106,6 +106,54 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "ATTACKLAB",
+  alternateName: ["CYBER TITAN", "ATTACK LAB"],
+  url: siteUrl,
+  logo: `${siteUrl}/favicon.svg`,
+  description:
+    "An elite platform for ethical hackers, penetration testers, and bug bounty hunters offering 30 structured courses, hands-on labs, CTF challenges, and bug bounty programs.",
+  foundingDate: "2026",
+  sameAs: [
+    "https://x.com/mrspecific22",
+    "https://github.com/specific112",
+    "https://www.instagram.com/abdulafeezabdulsamad22",
+    "https://www.youtube.com/@Hacker_specific",
+    "https://t.me/abdulsamad728828277",
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "samadspecific112@gmail.com",
+    contactType: "customer service",
+    availableLanguage: "English",
+  },
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "NG",
+  },
+  knowsAbout: [
+    "Ethical Hacking",
+    "Penetration Testing",
+    "Bug Bounty Hunting",
+    "Cybersecurity",
+    "Web Application Security",
+    "Network Security",
+    "Kali Linux",
+    "Burp Suite",
+    "Nmap",
+    "Metasploit",
+    "Wireshark",
+    "Active Directory",
+    "OWASP Top 10",
+    "OSINT",
+    "Cloud Security",
+    "Mobile Security",
+    "API Security",
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -113,9 +161,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/favicon.svg" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0a0a0f" />
         <meta name="msapplication-TileColor" content="#0a0a0f" />
         <link rel="canonical" href={siteUrl} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
       </head>
       <body>
         <AuthProvider>

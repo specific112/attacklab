@@ -1,0 +1,42 @@
+{
+  "name": "ATTACKLAB — Ethical Hacking, Penetration Testing & Bug Bounty Platform",
+  "short_name": "ATTACKLAB",
+  "description": "Master ethical hacking, penetration testing, and bug bounty hunting through 30 structured courses, hands-on labs, CTF challenges, and real-world attack simulations.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "security"],
+  "lang": "en",
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "Browse Courses",
+      "url": "/courses",
+      "description": "View all cybersecurity courses"
+    },
+    {
+      "name": "Security Labs",
+      "url": "/labs",
+      "description": "Hands-on hacking labs"
+    },
+    {
+      "name": "Bug Bounty Programs",
+      "url": "/programs",
+      "description": "Find bug bounty programs"
+    }
+  ]
+}

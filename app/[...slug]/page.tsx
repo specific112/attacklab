@@ -111,6 +111,10 @@ const pageData: Record<
   },
 };
 
+export function generateStaticParams() {
+  return Object.keys(pageData).map((route) => ({ slug: [route] }));
+}
+
 export function generateMetadata({
   params,
 }: {
@@ -149,7 +153,7 @@ export default function Page({ params }: { params: { slug: string[] } }) {
   const route = params.slug.join("/");
   const data = pageData[route];
 
-  const jsonLd = {
+  let jsonLd: Record<string, any> = {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: data?.title || "ATTACKLAB",
@@ -159,8 +163,80 @@ export default function Page({ params }: { params: { slug: string[] } }) {
       "@type": "Organization",
       name: "ATTACKLAB",
       url: siteUrl,
+      logo: `${siteUrl}/favicon.svg`,
+      sameAs: [
+        "https://x.com/mrspecific22",
+        "https://github.com/specific112",
+        "https://www.instagram.com/abdulafeezabdulsamad22",
+        "https://www.youtube.com/@Hacker_specific",
+        "https://t.me/abdulsamad728828277",
+      ],
     },
   };
+
+  // Richer structured data for specific pages
+  if (route === "about") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: "About ATTACKLAB",
+      description: data?.description,
+      url: `${siteUrl}/about`,
+      mainEntity: {
+        "@type": "Organization",
+        name: "ATTACKLAB",
+        url: siteUrl,
+        logo: `${siteUrl}/favicon.svg`,
+        foundingDate: "2026",
+        description: "An elite platform for ethical hackers, penetration testers, and bug bounty hunters.",
+        sameAs: [
+          "https://x.com/mrspecific22",
+          "https://github.com/specific112",
+          "https://www.instagram.com/abdulafeezabdulsamad22",
+          "https://www.youtube.com/@Hacker_specific",
+          "https://t.me/abdulsamad728828277",
+        ],
+      },
+    };
+  } else if (route === "faq") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        { "@type": "Question", name: "What is ATTACKLAB?", acceptedAnswer: { "@type": "Answer", text: "ATTACKLAB is an ethical hacking and bug bounty learning platform offering 30 structured courses, hands-on labs, CTF challenges, and bug bounty programs." } },
+        { "@type": "Question", name: "Is ATTACKLAB free?", acceptedAnswer: { "@type": "Answer", text: "Yes, ATTACKLAB offers a free tier with access to basic courses and community features. Paid plans unlock advanced labs, certificates, and premium content." } },
+        { "@type": "Question", name: "What courses does ATTACKLAB offer?", acceptedAnswer: { "@type": "Answer", text: "ATTACKLAB offers 30 levels covering: Cybersecurity Fundamentals, Linux, Networking, Programming, Web Technologies, OWASP Top 10, Burp Suite, Nmap, Metasploit, Wireshark, Active Directory, Privilege Escalation, Cloud Security, Mobile Security, API Security, OSINT, Bug Bounty Hunting, and Professional Penetration Testing." } },
+        { "@type": "Question", name: "Do I get certificates?", acceptedAnswer: { "@type": "Answer", text: "Yes, ATTACKLAB awards digital certificates and completion badges after successfully completing a course, along with XP rewards." } },
+        { "@type": "Question", name: "What is the bug bounty program?", acceptedAnswer: { "@type": "Answer", text: "ATTACKLAB provides a directory of bug bounty programs from companies with rewards ranging from $500 to $25,000 for responsible vulnerability disclosure." } },
+      ],
+    };
+  } else if (route === "pricing") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "ATTACKLAB Pricing",
+      description: data?.description,
+      url: `${siteUrl}/pricing`,
+      offers: [
+        { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Explorer", description: "Free tier with basic courses" },
+        { "@type": "Offer", price: "29", priceCurrency: "USD", name: "Practitioner", description: "Full access to courses and labs" },
+      ],
+    };
+  } else if (route === "contact") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      name: "Contact ATTACKLAB",
+      description: data?.description,
+      url: `${siteUrl}/contact`,
+      mainEntity: {
+        "@type": "Organization",
+        name: "ATTACKLAB",
+        email: "samadspecific112@gmail.com",
+        url: siteUrl,
+      },
+    };
+  }
 
   return (
     <>
