@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { requireAdmin } from "@/lib/middleware-utils";
 import { db } from "@/lib/db";
 import { success, forbidden, error } from "@/lib/api-response";
+import { submitCoursePage } from "@/lib/indexnow";
 
 export async function GET(req: NextRequest) {
   const user = await requireAdmin();
@@ -25,6 +26,9 @@ export async function PUT(req: NextRequest) {
   const { courseId, ...updates } = await req.json();
 
   const course = await db.course.update({ where: { id: courseId }, data: updates });
+
+  // Submit to search engines for instant indexing
+  if (course.slug) submitCoursePage(course.slug).catch(() => {});
 
   await db.auditLog.create({
     data: { userId: admin.id, actorEmail: admin.email, action: "COURSE_UPDATED", resource: "course", resourceId: courseId, details: updates },
